@@ -1,3 +1,5 @@
+![](https://img.shields.io/badge/stars%20⭐-8-yellow)
+
 # Advent of Code 2023
 
 This repository hosts my solutions for the Advent of Code puzzles of 2023. I'm using Python and my main objective is to come up with easy-to-read solutions.
