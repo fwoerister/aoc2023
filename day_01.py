@@ -29,7 +29,7 @@ def last_digit(line):
                 return digits[line[start:end]]
 
 
-with open('input/simple.txt') as file:
+with open('input/day_01.txt') as file:
     lines = file.readlines()
 
     lines = map(lambda line: first_digit(line) + last_digit(line), lines)
