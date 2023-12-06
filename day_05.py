@@ -71,18 +71,21 @@ class MappingStage:
 
             if mapped_intersection:
                 return mapped_intersection, remainders
+                
         return None, []
 
 
 def parse_seeds_part_1(f):
     line = f.readline()
     tag, seed_numbers = line.split(':')
+    
     return [Range(int(start), int(start)) for start in re.findall(r'(\d+)', seed_numbers)]
 
 
 def parse_seeds_part_2(f):
     line = f.readline()
     tag, seed_numbers = line.split(':')
+    
     return [Range(int(start), int(start) + int(end) - 1) for start, end in re.findall(r'(\d+) (\d+)', seed_numbers)]
 
 
@@ -100,6 +103,7 @@ def parse_stage(raw_stage):
         source = int(m[1])
         length = int(m[2])
         ranges.append(MappedRange(source, source + length - 1, destination - source))
+        
     return MappingStage(ranges)
 
 
