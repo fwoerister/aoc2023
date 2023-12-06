@@ -47,7 +47,6 @@ class MappedRange(Range):
 class MappingStage:
     def __init__(self, mapped_ranges: list):
         self.mapped_ranges = mapped_ranges
-        self.mapped_ranges.sort(key=lambda element: element.start)
 
     def apply(self, seed_ranges: list) -> list:
         result = []
@@ -60,6 +59,7 @@ class MappingStage:
 
     def _apply_mapped_ranges(self, seed_range: Range) -> (Range, list):
         for mapped_range in self.mapped_ranges:
+
             left_remainder, mapped_intersection, right_remainder = mapped_range.translate_range(seed_range)
 
             remainders = []
