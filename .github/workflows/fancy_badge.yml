@@ -16,6 +16,8 @@ jobs:
           userid: 2906501                          # your user id, see setup on how to obtain
           session: ${{ secrets.AOC_SESSION }}    # secret containing session code, see setup on how to obtain
 
+      - run: cat README.md
+  
       - uses: stefanzweifel/git-auto-commit-action@v4     # Step that pushes these local changes back to your github repo
         with:
           commit_message: Update badges
