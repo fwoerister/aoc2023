@@ -1,4 +1,5 @@
 import re
+from datetime import datetime
 
 values = []
 
@@ -45,8 +46,14 @@ with open('input/day_09.txt') as file:
     for line in file.readlines():
         values.append([int(val) for val in re.findall(r"([-\d]+)", line)])
 
+start_ts = datetime.now().timestamp()
 print("part 1:")
 print(sum([predict_next_val(val) for val in values]))
+end_ts = datetime.now().timestamp()
+print(f"{end_ts - start_ts}s \n")
 
+start_ts = datetime.now().timestamp()
 print("part 2:")
 print(sum([predict_new_first_val(val) for val in values]))
+end_ts = datetime.now().timestamp()
+print(f"{end_ts - start_ts}s \n")
