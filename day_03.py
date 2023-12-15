@@ -1,3 +1,6 @@
+import timeit
+
+
 class Symbol:
     def __init__(self, char, position):
         self.char = char
@@ -60,17 +63,31 @@ def is_valid_part(part, symbols):
     return any([part.is_adjacent(s) for s in symbols])
 
 
-with open("input/day_03.txt") as file:
-    engine_parts, plan_symbols = load_parts_and_symbols(file.readlines())
+def do_part_1(engine_parts, plan_symbols):
+    return sum([p.number for p in engine_parts if is_valid_part(p, plan_symbols)])
 
-    print("part 1:")
-    valid_parts = [p.number for p in engine_parts if is_valid_part(p, plan_symbols)]
 
-    print(sum(valid_parts))
-
-    print("part 2:")
+def do_part_2(engine_parts, plan_symbols):
     gear_symbols = list(filter(lambda sym: sym.char == '*', plan_symbols))
     gear_power_sum = 0
     for symbol in gear_symbols:
         gear_power_sum += calculate_gear_ratio(engine_parts, symbol)
-    print(gear_power_sum)
+    return gear_power_sum
+
+
+with open("input/day_03.txt") as file:
+    engine_parts, plan_symbols = load_parts_and_symbols(file.readlines())
+
+result = do_part_1(engine_parts, plan_symbols)
+avg_time = timeit.timeit(lambda: do_part_1(engine_parts, plan_symbols), number=100) / 100
+
+print('part 1:')
+print(f"result: {result}")
+print(f"avg execution time: {avg_time}s")
+
+result = do_part_2(engine_parts, plan_symbols)
+avg_time = timeit.timeit(lambda: do_part_2(engine_parts, plan_symbols), number=100) / 100
+
+print('part 2:')
+print(f"result: {result}")
+print(f"avg execution time: {avg_time}s")
