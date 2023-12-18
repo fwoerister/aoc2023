@@ -42,7 +42,7 @@ class Route:
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_vertical:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks:
                 result.append(reachable_block)
             y -= 1
 
@@ -69,7 +69,7 @@ class Route:
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_vertical:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks:
                 result.append(reachable_block)
             y += 1
 
@@ -96,7 +96,7 @@ class Route:
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_horizontal:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks:
                 result.append(reachable_block)
             x -= 1
         return result
@@ -122,7 +122,7 @@ class Route:
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_horizontal:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks:
                 result.append(reachable_block)
             x += 1
 
@@ -202,9 +202,7 @@ class MapBlock:
 class HeatLossMap:
     def __init__(self, values):
         self.blocks = self._parse_map_lines(values)
-        self.visited_blocks_vertical = set()
-        self.visited_blocks_horizontal = set()
-
+        self.visited_blocks = set()
     def _parse_map_lines(self, lines):
         parsed_map = []
         for column_idx in range(0, len(lines[0].strip())):
@@ -221,8 +219,8 @@ class HeatLossMap:
         return None
 
     def get_optimal_path(self, start, target):
-        self.visited_blocks_vertical.add(start)
-        self.visited_blocks_horizontal.add(start)
+        self.visited_blocks.add(start)
+
 
         heapq.heapify([])
 
@@ -230,31 +228,31 @@ class HeatLossMap:
 
     def _get_optimal_path(self, current_routes, target):
 
-        while target not in self.visited_blocks_horizontal and target not in self.visited_blocks_vertical:
+        while target not in self.visited_blocks:
             optimal_route = heapq.heappop(current_routes)
 
             north_moves = optimal_route.generate_reachable_fields_north()
             if any(north_moves):
                 next_step = self.get(optimal_route.tail().x, optimal_route.tail().y - 1)
-                self.visited_blocks_vertical.add(next_step)
+                self.visited_blocks.add(next_step)
                 heapq.heappush(current_routes, optimal_route + Route([next_step], self))
 
             east_moves = optimal_route.generate_reachable_fields_east()
             if any(east_moves):
                 next_step = self.get(optimal_route.tail().x + 1, optimal_route.tail().y)
-                self.visited_blocks_horizontal.add(next_step)
+                self.visited_blocks.add(next_step)
                 heapq.heappush(current_routes, optimal_route + Route([next_step], self))
 
             south_moves = optimal_route.generate_reachable_fields_south()
             if any(south_moves):
                 next_step = self.get(optimal_route.tail().x, optimal_route.tail().y + 1)
-                self.visited_blocks_vertical.add(next_step)
+                self.visited_blocks.add(next_step)
                 heapq.heappush(current_routes, optimal_route + Route([next_step], self))
 
             west_moves = optimal_route.generate_reachable_fields_west()
             if any(west_moves):
                 next_step = self.get(optimal_route.tail().x - 1, optimal_route.tail().y)
-                self.visited_blocks_horizontal.add(next_step)
+                self.visited_blocks.add(next_step)
                 heapq.heappush(current_routes, optimal_route + Route([next_step], self))
 
         for r in current_routes:
