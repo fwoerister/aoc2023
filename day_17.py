@@ -41,10 +41,10 @@ class Route:
         y = self.tail().y - offset
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
-            y -= 1
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_horizontal:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_vertical:
                 result.append(reachable_block)
+            y -= 1
 
         return result
 
@@ -68,10 +68,10 @@ class Route:
         y = self.tail().y + offset
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
-            y += 1
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_horizontal:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_vertical:
                 result.append(reachable_block)
+            y += 1
 
         return result
 
@@ -95,11 +95,10 @@ class Route:
         y = self.tail().y
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
-            x -= 1
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_vertical:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_horizontal:
                 result.append(reachable_block)
-
+            x -= 1
         return result
 
     def generate_reachable_fields_east(self):
@@ -123,8 +122,9 @@ class Route:
 
         for count in range(0, min(MAX_TRAVEL_DISTANCE - traveled_distance, 6)):
             reachable_block = self.heat_loss_map.get(x, y)
-            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_vertical:
+            if reachable_block and reachable_block not in self.heat_loss_map.visited_blocks_horizontal:
                 result.append(reachable_block)
+            x += 1
 
         return result
 
