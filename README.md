@@ -1,5 +1,5 @@
-![](https://img.shields.io/badge/day%20📅-18-blue)
-![](https://img.shields.io/badge/stars%20⭐-32-yellow)
+![](https://img.shields.io/badge/day%20📅-19-blue)
+![](https://img.shields.io/badge/stars%20⭐-33-yellow)
 
 # Advent of Code 2023
 
