@@ -1,134 +1,123 @@
 import re
 
 
-class Cube:
-    def __init__(self, x, y, is_vertical):
-        self.x = x
-        self.y = y
-        self.is_vertical = is_vertical
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-
 class DigDirection:
-    def __init__(self, orientation, distance, color):
-        self.orientation = orientation
-        self.distance = distance
-        self.color = color
+
+    def __init__(self, hex_code):
+        match hex_code[-1]:
+            case '0':
+                self.orientation = 'R'
+            case '1':
+                self.orientation = 'D'
+            case '2':
+                self.orientation = 'L'
+            case '3':
+                self.orientation = 'U'
+
+        self.distance = int(hex_code[1:-1], base=16)
+
+    def __str__(self):
+        return f"{self.orientation} {self.distance} {self.color}"
 
 
 class Shape:
-    def __init__(self, edge):
-        self.edge = edge
-
-    def get_covered_cubes(self) -> set:
-        pass
-
-    def print_edge(self, vertical_only):
-        y_coordinates = [cube.y for cube in self.edge]
-
-        for y in range(min(y_coordinates), max(y_coordinates) + 1):
-            if vertical_only:
-                x_coordinates = [cube.x for cube in self.edge if cube.y == y and cube.is_vertical]
-            else:
-                x_coordinates = [cube.x for cube in self.edge if cube.y == y]
-            x_coordinates.sort()
-
-            count = 0
-            for coordinate in x_coordinates:
-                while count < coordinate:
-                    print(' ', end='')
-                    count += 1
-                print('#', end='')
-                count += 1
-
-            print('')
-
-
-class Lagoon:
     def __init__(self, dig_directions):
-        self.current = Cube(0, 0, False)
-        self.dig_directions = dig_directions
-        self.edge = [self.current]
-        self.shapes = []
+        self.nodes = [(0, 0)]
+        self._generate_nodes(dig_directions)
+        self.nodes = self.nodes[:-1]
+        self.expand()
 
-        self._generate_edge_cubes()
+    def _generate_nodes(self, dig_directions):
+        idx = 0
+        while idx < len(dig_directions):
+            current = self.nodes[-1]
+            direction = dig_directions[idx]
 
-    def _generate_edge_cubes(self):
-        for direction in self.dig_directions:
             match direction.orientation:
                 case 'U':
-                    self.current.is_vertical = True
-                    for step in range(0, direction.distance):
-                        self.current = Cube(self.current.x, self.current.y - 1, True)
-                        if self.current in self.edge:
-                            current_idx = self.edge.index(self.current)
-                            self.edge[current_idx].is_vertical = True
-                            self.shapes.append(Shape(self.edge[current_idx:]))
-                            self.edge = self.edge[:current_idx]
-                            self.current.is_vertical = False
-                        self.edge.append(self.current)
+                    new_x = current[0]
+                    new_y = current[1] - direction.distance
+
+                    self.nodes.append((new_x, new_y))
                 case 'D':
-                    self.current.is_vertical = True
-                    for step in range(0, direction.distance):
-                        self.current = Cube(self.current.x, self.current.y + 1, True)
-                        if self.current in self.edge:
-                            current_idx = self.edge.index(self.current)
-                            self.edge[current_idx].is_vertical = True
-                            self.shapes.append(Shape(self.edge[current_idx:]))
-                            self.edge = self.edge[:current_idx]
-                            self.current.is_vertical = False
-                        self.edge.append(self.current)
+                    new_x = current[0]
+                    new_y = current[1] + direction.distance
+
+                    self.nodes.append((new_x, new_y))
                 case 'L':
-                    for step in range(0, direction.distance):
-                        self.current = Cube(self.current.x - 1, self.current.y, False)
-                        if self.current in self.edge:
-                            current_idx = self.edge.index(self.current)
-                            self.edge[current_idx].is_vertical = False
-                            self.shapes.append(Shape(self.edge[current_idx:]))
-                            self.edge = self.edge[:current_idx]
-                        self.edge.append(self.current)
+                    new_x = current[0] - direction.distance
+                    new_y = current[1]
+
+                    self.nodes.append((new_x, new_y))
                 case 'R':
-                    for step in range(0, direction.distance):
-                        self.current = Cube(self.current.x + 1, self.current.y, False)
-                        if self.current in self.edge:
-                            current_idx = self.edge.index(self.current)
-                            self.edge[current_idx].is_vertical = False
-                            self.shapes.append(Shape(self.edge[current_idx:]))
-                            self.edge = self.edge[:current_idx]
-                        self.edge.append(self.current)
+                    new_x = current[0] + direction.distance
+                    new_y = current[1]
 
-    def calculate_area(self):
-        y_coordinates = [cube[1] for cube in self.edge]
+                    self.nodes.append((new_x, new_y))
+
+            idx += 1
+
+    def expand(self):
+        nodes = [(x + 0.5, y + 0.5) for x, y in self.nodes]
+
+        idx = 0
+        while idx < len(self.nodes):
+            previous = self.nodes[idx - 1]
+            current = self.nodes[idx]
+            successor = self.nodes[(idx + 1) % len(self.nodes)]
+
+            # bottom -> right
+            if previous[1] > current[1] and current[0] < successor[0]:
+                nodes[idx] = (nodes[idx][0] - 0.5, nodes[idx][1] - 0.5)
+
+            # top -> left
+            if previous[1] < current[1] and current[0] > successor[0]:
+                nodes[idx] = (nodes[idx][0] + 0.5, nodes[idx][1] + 0.5)
+
+            # top -> right
+            if previous[1] < current[1] and current[0] < successor[0]:
+                nodes[idx] = (nodes[idx][0] + 0.5, nodes[idx][1] - 0.5)
+
+            # bottom -> left
+            if previous[1] > current[1] and current[0] > successor[0]:
+                nodes[idx] = (nodes[idx][0] - 0.5, nodes[idx][1] + 0.5)
+
+            # right -> bottom
+            if previous[0] > current[0] and current[1] < successor[1]:
+                nodes[idx] = (nodes[idx][0] + 0.5, nodes[idx][1] + 0.5)
+
+            # left -> top
+            if previous[0] < current[0] and current[1] > successor[1]:
+                nodes[idx] = (nodes[idx][0] - 0.5, nodes[idx][1] - 0.5)
+
+            # left -> bottom
+            if previous[0] < current[0] and current[1] < successor[1]:
+                nodes[idx] = (nodes[idx][0] + 0.5, nodes[idx][1] - 0.5)
+
+            # right -> top
+            if previous[0] > current[0] and current[1] > successor[1]:
+                nodes[idx] = (nodes[idx][0] - 0.5, nodes[idx][1] + 0.5)
+
+            idx += 1
+
+        self.nodes = nodes
+
+    def calc_area(self):
+        print(self.nodes)
+        prev_node = self.nodes[-1]
         area = 0
-
-        for y in range(min(y_coordinates), max(y_coordinates) + 1):
-            x_coordinates = [cube[0] for cube in self.edge if cube[1] == y]
-            x_coordinates.sort()
-
-            idx = 1
-            while idx < len(x_coordinates):
-                start = x_coordinates[idx]
-
-                while idx < len(x_coordinates) and x_coordinates[idx - 1] + 1 == x_coordinates[idx]:
-                    idx += 1
-
-                idx += 1
-
-                while idx < len(x_coordinates) and x_coordinates[idx - 1] + 1 == x_coordinates[idx]:
-                    idx += 1
-
-                end = x_coordinates[idx]
-                area += end - start + 1
-
-        return area
+        for node in self.nodes:
+            area += (prev_node[1] + node[1]) * (prev_node[0] - node[0])
+            prev_node = node
+        return area / 2
 
 
 with open('input/day_18.txt') as file:
     file_content = file.read()
 
 directions = re.findall(r'(\w) (\d+) \((#[abcdef0123456789]+)\)', file_content)
-directions = [DigDirection(direction[0], int(direction[1]), direction[2]) for direction in directions]
-lagoon = Lagoon(directions)
-print('hi')
+directions = [DigDirection(direction[2]) for direction in directions]
+lagoon = Shape(directions)
+
+# print_edge(lagoon.edge, False)
+print(lagoon.calc_area())
