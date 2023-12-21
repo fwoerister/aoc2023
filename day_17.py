@@ -143,7 +143,7 @@ def draw_state(state, width, height):
             else:
                 print('.', end='')
         print('')
-    print('')
+    print(f'heat loss: {state.calculate_heat_loss()}\n')
 
 
 with open("input/day_17.txt") as file:
