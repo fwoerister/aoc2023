@@ -1,4 +1,4 @@
-![](https://img.shields.io/badge/day%20📅-24-blue)
+![](https://img.shields.io/badge/day%20📅-25-blue)
 ![](https://img.shields.io/badge/stars%20⭐-42-yellow)
 
 # Advent of Code 2023
